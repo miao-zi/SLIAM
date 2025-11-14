@@ -55,7 +55,7 @@ class ASPP(nn.Module):
         )
         return output
 
-class UNetVariant(nn.Module):
+class DSPUNet(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(UNetVariant, self).__init__()
 
@@ -102,7 +102,7 @@ class UNetVariant(nn.Module):
 
         return output
 
-class MLCAB(nn.Module):
+class MLSAB(nn.Module):
     def __init__(self):
         super(MLCAB, self).__init__()
 
@@ -265,7 +265,7 @@ class Entropybranch(nn.Module):
         return X
 
 
-class SLIAM(nn.Module):
+class SHIAM(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(SLIAM, self).__init__()
         size, in_channels, out_channels = (config['size'], config['in_channels'], config['out_channels'])
@@ -280,8 +280,8 @@ class SLIAM(nn.Module):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        self.unet_variant = UNetVariant(in_channels, out_channels)
-        self.mlcab = MLCAB()
+        self.unet_variant = DSPUNet(in_channels, out_channels)
+        self.mlcab = MLSAB()
         self.gciam = GCIAM(in_channels, heads=8, d_model=512)
 
         self.entropy_branch = Entropybranch()
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         'in_channels': 1,
         'out_channels': 2,
     }
-    net = SLIAM(config)
+    net = SHIAM(config)
     #print(net(torch.randn(8, 1, 150, 150)).shape)
     print(torchsummary.summary(net, (1, 150, 150), batch_size=-1, device='cuda:0'))
 
